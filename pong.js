@@ -1,9 +1,15 @@
-// Call callback at 60fps
+// Refresh animation at 60fps
 var animate = window.requestAnimationFrame ||
   window.webkitrequestAnimationFrame ||
   window.mozrequestAnimationFrame ||
   function(callback) {window.setTimeout(callback, 1000/60) 
 };
+
+var cancelAnimate = window.cancelAnimationFrame || 
+  window.mozCancelAnimationFrame || 
+  window.webkitCancelAnimationFrame;
+
+var requestId;
 
 // Setup canvas and get its 2d context
 var canvas = document.createElement('canvas');
@@ -18,6 +24,8 @@ var player = new Player();
 var computer = new Computer();
 var ball = new Ball(200, 300);
 
+var winningScore = 21;
+
 // Keeps track of which key was pressed (left or right arrow)
 var keysDown = {};
 
@@ -28,21 +36,56 @@ var render = function() {
   context.fillRect(0, 0, width, height);
   player.render();
   computer.render();
-  ball.render();
+
+  // Once the game is over, remove ball from screen
+  if(player.score.score < winningScore && computer.score.score < winningScore) {
+    ball.render();
+  }
 };
 
 // function to continuously update computer, player and ball objects
 var update = function() {
   player.update();
   computer.update(ball);
-  ball.update(player.paddle, computer.paddle);
+  ball.update(player.paddle, computer.paddle, player.score, computer.score);
 };
 
 // udpate objects, render objects, and call step function recursively
 var step = function() {
   update();
   render();
-  animate(step);
+  requestId = animate(step);
+
+  // Cancel animation once the winning score is reached
+  if(player.score.score === winningScore || computer.score.score === winningScore) {
+    cancelAnimate(requestId);
+  }
+};
+
+// Create Score prototype with render and update methods
+function Score(score, x, y) {
+  this.score = score;
+  this.x = x;
+  this.y = y;
+}
+
+Score.prototype.render = function() {
+  context.font = "24px serif";
+  context.fillText(this.score, this.x, this.y);
+};
+
+Score.prototype.renderWinner = function(winMessage, x, y) {
+  context.font = "16px serif";
+  context.fillText(winMessage , x, y);
+};
+
+Score.prototype.renderDash = function(x, y) {
+  context.font = "24px serif";
+  context.fillText(" - ", x, y);
+};
+
+Score.prototype.update = function() {
+    this.score += 1;
 };
 
 // Create Paddle prototype with render and move methods
@@ -77,10 +120,15 @@ Paddle.prototype.move = function(x, y) {
 // Create Computer prototype with new Paddle and render and update methods
 function Computer() {
   this.paddle = new Paddle(175, 10, 50, 10);
+  this.score = new Score(0, 211, 300);
 }
 
 Computer.prototype.render = function() {
   this.paddle.render();
+  this.score.render();
+  if (this.score.score === winningScore) {
+    this.score.renderWinner("Computer wins! Winner, winner chicken dinner!!", 40, 250);
+  }
 };
 
 Computer.prototype.update = function(ball) {
@@ -102,13 +150,23 @@ Computer.prototype.update = function(ball) {
 // Create Player prototype with new Paddle and render and update methods
 function Player() {
   this.paddle = new Paddle(175, 580, 50, 10);
+  this.score = new Score(0, 179, 300);
 }
 
 Player.prototype.render = function() {
   this.paddle.render();
+  this.score.render();
+  if(this.score.score > 9) {
+    this.score.renderDash(197, 300); // Adjust dash for double-digit numbers
+  } else {
+    this.score.renderDash(191, 300); // Dash for single-digit numbers
+  } 
+  if(this.score.score === winningScore) {
+    this.score.renderWinner("You win! Congratulations you lucky dog!", 60, 250);
+  } 
 };
 
-Player.prototype.update = function() {
+Player.prototype.update = function(ball) {
   for(var key in keysDown) {
     var value = Number(key);
     if(value == 37) { // left arrow
@@ -137,7 +195,7 @@ Ball.prototype.render = function() {
   context.fill(); // Draw fill
 };
 
-Ball.prototype.update = function(paddle1, paddle2) {
+Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
   this.x += this.x_speed;
   this.y += this.y_speed;
 
@@ -154,6 +212,12 @@ Ball.prototype.update = function(paddle1, paddle2) {
   } else if(this.x + 5 > 400) { // hitting the right wall
     this.x = 395;
     this.x_speed = -this.x_speed;
+  }
+
+  if(this.y < 0) { // Player scored a point
+    score1.update();
+  } else if(this.y > 600) { // Computer scored a point
+    score2.update();
   }
 
   // Reset ball in center after a point is scored
@@ -184,7 +248,7 @@ Ball.prototype.update = function(paddle1, paddle2) {
 // When page loads attach canvas to screen and start animate
 window.onload = function() {
   document.body.appendChild(canvas);
-  animate(step);
+  requestId = animate(step);
 };
 
 // Pushes key pressed to the keysDown object on keydown and deletes it on keyup
@@ -195,62 +259,4 @@ window.addEventListener("keydown", function(event) {
 window.addEventListener("keyup", function(event) {
   delete keysDown[event.keyCode];
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
