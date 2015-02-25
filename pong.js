@@ -254,7 +254,7 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
 
 // When page loads attach canvas to screen and start animate
 window.onload = function() {
-  loadCSS('http://fonts.googleapis.com/css?family=Press+Start+2P');
+  loadCSS('https://fonts.googleapis.com/css?family=Press+Start+2P');
   document.body.appendChild(canvas);
   requestId = animate(step);
 };
