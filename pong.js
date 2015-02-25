@@ -229,14 +229,14 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
   }
 
   if(top_y > 300) {
-    if(top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y && left_x < (paddle1.x + paddle1.width) && right_x > paddle1.x) {
+    if((top_y <= paddle1.y) && (bottom_y > paddle1.y) && (left_x < (paddle1.x + paddle1.width)) && (right_x > paddle1.x)) {
       // hit the player's paddle
       this.y_speed = -3;
       this.x_speed += (paddle1.x_speed / 2); // ball moves faster or slower depending on direction of the ball and paddle
       this.y += this.y_speed;
     }
   } else {
-    if(top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y && left_x < (paddle2.x + paddle2.width) && right_x > paddle2.x) {
+    if((top_y < (paddle2.y + paddle2.height)) && (bottom_y >= (paddle2.y + paddle2.height)) && (left_x < (paddle2.x + paddle2.width)) && (right_x > paddle2.x)) {
       // hit the computer's paddle
       this.y_speed = 3;
       this.x_speed += (paddle2.x_speed / 2);
