@@ -24,15 +24,30 @@ var player = new Player();
 var computer = new Computer();
 var ball = new Ball(300, 200);
 
-var winningScore = 30;
+var winningScore = 21;
 
 // Keeps track of which key was pressed (left or right arrow)
 var keysDown = {};
 
+// Using img onerror trick to load google font
+var loadCSS = function(url, callback){
+    var link = document.createElement('link');
+        link.type = 'text/css';
+        link.rel = 'stylesheet';
+        link.href = url;
+
+    document.getElementsByTagName('head')[0].appendChild(link);
+
+    var img = document.createElement('img');
+        img.onerror = function(){
+            if(callback) callback(link);
+        }
+        img.src = url;
+}
 
 // Render the game board and objects
 var render = function() {
-  context.fillStyle = "#FF00FF";
+  context.fillStyle = "#000"; //#FF00FF
   context.fillRect(0, 0, width, height);
   player.render();
   computer.render();
@@ -70,19 +85,19 @@ function Score(score, x, y) {
 }
 
 Score.prototype.render = function() {
-  context.font = "24px serif";
+  context.font = "20px 'Press Start 2P'";
   context.textAlign = "center";
   context.fillText(this.score, this.x, this.y);
 };
 
 Score.prototype.renderWinner = function(winMessage) {
-  context.font = "28px serif";
+  context.font = "16px 'Press Start 2P'";
   context.textAlign = "center";
   context.fillText(winMessage , 300, 200);
 };
 
 Score.prototype.update = function() {
-    this.score += 10;
+    this.score += 1;
 };
 
 // Create Paddle prototype with render and move methods
@@ -96,7 +111,7 @@ function Paddle(x, y, width, height) {
 }
 
 Paddle.prototype.render = function() {
-  context.fillStyle = "#0000FF";
+  context.fillStyle = "#FFF"; // #0000FF
   context.fillRect(this.x, this.y, this.width, this.height);
 };
 
@@ -117,7 +132,7 @@ Paddle.prototype.move = function(x, y) {
 // Create Computer prototype with new Paddle and render and update methods
 function Computer() {
   this.paddle = new Paddle(10, 175, 10, 50);
-  this.score = new Score(0, 200, 25);
+  this.score = new Score(0, 200, 30);
 }
 
 Computer.prototype.render = function() {
@@ -147,14 +162,14 @@ Computer.prototype.update = function(ball) {
 // Create Player prototype with new Paddle and render and update methods
 function Player() {
   this.paddle = new Paddle(580, 175, 10, 50);
-  this.score = new Score(0, 400, 25);
+  this.score = new Score(0, 400, 30);
 }
 
 Player.prototype.render = function() {
   this.paddle.render();
   this.score.render();
   if(this.score.score === winningScore) {
-    this.score.renderWinner("You win... Congrats you lucky dog!");
+    this.score.renderWinner("You win... Congrats lucky dog!");
   } 
 };
 
@@ -183,7 +198,7 @@ function Ball(x, y) {
 Ball.prototype.render = function() {
   context.beginPath();
   context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false); // Draw circle
-  context.fillStyle = "#000000";
+  context.fillStyle = "#FFF"; // #000
   context.fill(); // Draw fill
 };
 
@@ -239,6 +254,7 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
 
 // When page loads attach canvas to screen and start animate
 window.onload = function() {
+  loadCSS('http://fonts.googleapis.com/css?family=Press+Start+2P');
   document.body.appendChild(canvas);
   requestId = animate(step);
 };
