@@ -13,8 +13,8 @@ var requestId;
 
 // Setup canvas and get its 2d context
 var canvas = document.createElement('canvas');
-var width = 400;
-var height = 600;
+var width = 600;
+var height = 400;
 canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
@@ -22,9 +22,9 @@ var context = canvas.getContext('2d');
 // Instantiate game objects
 var player = new Player();
 var computer = new Computer();
-var ball = new Ball(200, 300);
+var ball = new Ball(300, 200);
 
-var winningScore = 21;
+var winningScore = 30;
 
 // Keeps track of which key was pressed (left or right arrow)
 var keysDown = {};
@@ -71,21 +71,18 @@ function Score(score, x, y) {
 
 Score.prototype.render = function() {
   context.font = "24px serif";
+  context.textAlign = "center";
   context.fillText(this.score, this.x, this.y);
 };
 
-Score.prototype.renderWinner = function(winMessage, x, y) {
-  context.font = "16px serif";
-  context.fillText(winMessage , x, y);
-};
-
-Score.prototype.renderDash = function(x, y) {
-  context.font = "24px serif";
-  context.fillText(" - ", x, y);
+Score.prototype.renderWinner = function(winMessage) {
+  context.font = "28px serif";
+  context.textAlign = "center";
+  context.fillText(winMessage , 300, 200);
 };
 
 Score.prototype.update = function() {
-    this.score += 1;
+    this.score += 10;
 };
 
 // Create Paddle prototype with render and move methods
@@ -108,71 +105,66 @@ Paddle.prototype.move = function(x, y) {
   this.y += y;
   this.x_speed = x;
   this.y_speed = y;
-  if(this.x < 0) { // all the way to the left
-    this.x = 0;
-    this.x_speed = 0;
-  } else if(this.x + this.width > 400) { // all the way to the right
-    this.x = 400 - this.width;
-    this.x_speed = 0;
+  if(this.y < 0) { // all the way at the top
+    this.y = 0;
+    this.y_speed = 0;
+  } else if(this.y + this.height > 400) { // all the way at the bottom
+    this.y = 400 - this.height;
+    this.y_speed = 0;
   }
 };
 
 // Create Computer prototype with new Paddle and render and update methods
 function Computer() {
-  this.paddle = new Paddle(175, 10, 50, 10);
-  this.score = new Score(0, 211, 300);
+  this.paddle = new Paddle(10, 175, 10, 50);
+  this.score = new Score(0, 200, 25);
 }
 
 Computer.prototype.render = function() {
   this.paddle.render();
   this.score.render();
   if (this.score.score === winningScore) {
-    this.score.renderWinner("Computer wins! Winner, winner chicken dinner!!", 40, 250);
+    this.score.renderWinner("I win!! I always do...");
   }
 };
 
 Computer.prototype.update = function(ball) {
-  var x_pos = ball.x;
-  var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos); // difference between middle of ball and middle of computer's paddle
-  if(diff < 0 && diff < -4) { // max speed left
+  var y_pos = ball.y;
+  var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos); // difference between middle of ball and middle of computer's paddle
+  if(diff < 0 && diff < -4) { // max speed up
     diff = -5;
-  } else if (diff > 0 && diff > 4) { // max speed right
+  } else if (diff > 0 && diff > 4) { // max speed down
     diff = 5;
   }
-  this.paddle.move(diff, 0);
-  if(this.paddle.x < 0) { // all the way to the left
+  this.paddle.move(0, diff);
+  if(this.paddle.y < 0) { // all the way to the top
     this.paddle.x = 0;
-  } else if (this.paddle.x + this.paddle.width > 400) { // all the way to the right
-    this.paddle.x = 400 - this.paddle.width;
+  } else if (this.paddle.y + this.paddle.height > 400) { // all the way to the bottom
+    this.paddle.x = 400 - this.paddle.height;
   }
 };
 
 // Create Player prototype with new Paddle and render and update methods
 function Player() {
-  this.paddle = new Paddle(175, 580, 50, 10);
-  this.score = new Score(0, 179, 300);
+  this.paddle = new Paddle(580, 175, 10, 50);
+  this.score = new Score(0, 400, 25);
 }
 
 Player.prototype.render = function() {
   this.paddle.render();
   this.score.render();
-  if(this.score.score > 9) {
-    this.score.renderDash(197, 300); // Adjust dash for double-digit numbers
-  } else {
-    this.score.renderDash(191, 300); // Dash for single-digit numbers
-  } 
   if(this.score.score === winningScore) {
-    this.score.renderWinner("You win! Congratulations you lucky dog!", 60, 250);
+    this.score.renderWinner("You win... Congrats you lucky dog!");
   } 
 };
 
 Player.prototype.update = function(ball) {
   for(var key in keysDown) {
     var value = Number(key);
-    if(value == 37) { // left arrow
-      this.paddle.move(-4, 0);
-    } else if(value == 39) { // right arrow
-      this.paddle.move(4, 0);
+    if(value == 38) { // up arrow
+      this.paddle.move(0, -4);
+    } else if(value == 40) { // down arrow
+      this.paddle.move(0, 4);
     } else {
       this.paddle.move(0, 0);
     }
@@ -183,8 +175,8 @@ Player.prototype.update = function(ball) {
 function Ball(x, y) {
   this.x = x;
   this.y = y;
-  this.x_speed = 0;
-  this.y_speed = 3;
+  this.x_speed = 3;
+  this.y_speed = 0;
   this.radius = 5;
 }
 
@@ -205,42 +197,42 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
   var right_x = this.x + 5;
   var bottom_y = this.y + 5;
 
-  // Check to see if ball is hitting left or right wall
-  if(this.x - 5 < 0) { // hitting the left wall
-    this.x = 5;
-    this.x_speed = -this.x_speed; // move ball in opposite direction horizontally
-  } else if(this.x + 5 > 400) { // hitting the right wall
-    this.x = 395;
-    this.x_speed = -this.x_speed;
+  // Check to see if ball is hitting top or bottom wall
+  if(this.y - 5 < 0) { // hitting the top wall
+    this.y = 5;
+    this.y_speed = -this.y_speed; // move ball in opposite direction vertically
+  } else if(this.y + 5 > 400) { // hitting the bottom wall
+    this.y = 395;
+    this.y_speed = -this.y_speed;
   }
 
-  if(this.y < 0) { // Player scored a point
+  if(this.x < 0) { // Player scored a point
     score1.update();
-  } else if(this.y > 600) { // Computer scored a point
+  } else if(this.x > 600) { // Computer scored a point
     score2.update();
   }
 
   // Reset ball in center after a point is scored
-  if(this.y < 0 || this.y > 600) { // a point was scored
-    this.x_speed = 0;
-    this.y_speed = 3;
-    this.x = 200;
-    this.y = 300;
+  if(this.x < 0 || this.x > 600) { // a point was scored
+    this.x_speed = 3;
+    this.y_speed = 0;
+    this.x = 300;
+    this.y = 200;
   }
 
-  if(top_y > 300) {
-    if((top_y <= paddle1.y) && (bottom_y > paddle1.y) && (left_x < (paddle1.x + paddle1.width)) && (right_x > paddle1.x)) {
+  if(right_x > 300) {
+    if((top_y < (paddle1.y + paddle1.height)) && (bottom_y > paddle1.y) && (left_x <= paddle1.x) && (right_x > paddle1.x)) {
       // hit the player's paddle
-      this.y_speed = -3;
-      this.x_speed += (paddle1.x_speed / 2); // ball moves faster or slower depending on direction of the ball and paddle
-      this.y += this.y_speed;
+      this.x_speed = -3;
+      this.y_speed += (paddle1.y_speed / 2); // ball moves faster or slower depending on direction of the ball and paddle
+      this.x += this.x_speed;
     }
   } else {
-    if((top_y < (paddle2.y + paddle2.height)) && (bottom_y >= (paddle2.y + paddle2.height)) && (left_x < (paddle2.x + paddle2.width)) && (right_x > paddle2.x)) {
+    if((top_y < (paddle2.y + paddle2.height)) && (bottom_y > paddle2.y) && (left_x < (paddle2.x + paddle2.width)) && (right_x >= (paddle2.x + paddle2.width))) {
       // hit the computer's paddle
-      this.y_speed = 3;
-      this.x_speed += (paddle2.x_speed / 2);
-      this.y += this.y_speed;
+      this.x_speed = 3;
+      this.y_speed += (paddle2.y_speed / 2);
+      this.x += this.x_speed;
     }
   }
 };
@@ -251,7 +243,7 @@ window.onload = function() {
   requestId = animate(step);
 };
 
-// Pushes key pressed to the keysDown object on keydown and deletes it on keyup
+// Pushes key pressed event to the keysDown object on keydown and deletes it on keyup
 window.addEventListener("keydown", function(event) {
   keysDown[event.keyCode] = true;
 });
