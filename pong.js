@@ -17,7 +17,7 @@ var width = 600;
 var height = 400;
 canvas.width = width;
 canvas.height = height;
-var context = canvas.getContext('2d');
+var ctx = canvas.getContext('2d');
 
 // Instantiate game objects
 var player = new Player();
@@ -47,8 +47,12 @@ var loadCSS = function(url, callback){
 
 // Render the game board and objects
 var render = function() {
-  context.fillStyle = "#000"; //#FF00FF
-  context.fillRect(0, 0, width, height);
+  // ctx.fillStyle = "#000"; //#FF00FF
+  // ctx.fillRect(0, 0, width, height);
+
+  var img = document.getElementById("canvas");
+  ctx.drawImage(img, 0, 0, 600, 400, 0, 0, width, height);
+
   player.render();
   computer.render();
 
@@ -85,15 +89,17 @@ function Score(score, x, y) {
 }
 
 Score.prototype.render = function() {
-  context.font = "20px 'Press Start 2P'";
-  context.textAlign = "center";
-  context.fillText(this.score, this.x, this.y);
+  ctx.fillStyle = "#FFF";
+  ctx.font = "20px 'Press Start 2P'";
+  ctx.textAlign = "center";
+  ctx.fillText(this.score, this.x, this.y);
 };
 
 Score.prototype.renderWinner = function(winMessage) {
-  context.font = "16px 'Press Start 2P'";
-  context.textAlign = "center";
-  context.fillText(winMessage , 300, 200);
+  ctx.fillStyle = "#FFF";
+  ctx.font = "16px 'Press Start 2P'";
+  ctx.textAlign = "center";
+  ctx.fillText(winMessage , 300, 170);
 };
 
 Score.prototype.update = function() {
@@ -110,9 +116,18 @@ function Paddle(x, y, width, height) {
   this.y_speed = 0;
 }
 
-Paddle.prototype.render = function() {
-  context.fillStyle = "#FFF"; // #0000FF
-  context.fillRect(this.x, this.y, this.width, this.height);
+Paddle.prototype.render = function(type) {
+  // ctx.fillStyle = "#FFF"; // #0000FF
+  // ctx.fillRect(this.x, this.y, this.width, this.height);
+  var img;
+
+  if(type === "player") {
+    img = document.getElementById("player");
+    ctx.drawImage(img, 0, 0, 24, 54, this.x, this.y, this.width, this.height);
+  } else if(type === "computer") {
+    img = document.getElementById("computer");
+    ctx.drawImage(img, 0, 0, 24, 54, this.x, this.y, this.width, this.height);
+  }
 };
 
 Paddle.prototype.move = function(x, y) {
@@ -131,12 +146,12 @@ Paddle.prototype.move = function(x, y) {
 
 // Create Computer prototype with new Paddle and render and update methods
 function Computer() {
-  this.paddle = new Paddle(10, 175, 10, 50);
-  this.score = new Score(0, 200, 30);
+  this.paddle = new Paddle(10, 165, 30, 70);
+  this.score = new Score(0, 200, 50);
 }
 
 Computer.prototype.render = function() {
-  this.paddle.render();
+  this.paddle.render("computer");
   this.score.render();
   if (this.score.score === winningScore) {
     this.score.renderWinner("I win!! I always do...");
@@ -161,12 +176,12 @@ Computer.prototype.update = function(ball) {
 
 // Create Player prototype with new Paddle and render and update methods
 function Player() {
-  this.paddle = new Paddle(580, 175, 10, 50);
-  this.score = new Score(0, 400, 30);
+  this.paddle = new Paddle(560, 165, 30, 70);
+  this.score = new Score(0, 400, 50);
 }
 
 Player.prototype.render = function() {
-  this.paddle.render();
+  this.paddle.render("player");
   this.score.render();
   if(this.score.score === winningScore) {
     this.score.renderWinner("You win... Congrats lucky dog!");
@@ -196,10 +211,13 @@ function Ball(x, y) {
 }
 
 Ball.prototype.render = function() {
-  context.beginPath();
-  context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false); // Draw circle
-  context.fillStyle = "#FFF"; // #000
-  context.fill(); // Draw fill
+  // ctx.beginPath();
+  // ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false); // Draw circle
+  // ctx.fillStyle = "#FFF"; // #000
+  // ctx.fill(); // Draw fill 
+
+  var img = document.getElementById("ball");
+  ctx.drawImage(img, 0, 0, 20, 20, this.x, this.y, 30, 30);
 };
 
 Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
@@ -207,17 +225,17 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
   this.y += this.y_speed;
 
   // left, right, top and bottom of ball
-  var left_x = this.x - 5;
-  var top_y = this.y - 5;
-  var right_x = this.x + 5;
-  var bottom_y = this.y + 5;
+  var left_x = this.x;
+  var top_y = this.y;
+  var right_x = this.x + 15;
+  var bottom_y = this.y + 15;
 
   // Check to see if ball is hitting top or bottom wall
-  if(this.y - 5 < 0) { // hitting the top wall
+  if(this.y < 0) { // hitting the top wall
     this.y = 5;
     this.y_speed = -this.y_speed; // move ball in opposite direction vertically
-  } else if(this.y + 5 > 400) { // hitting the bottom wall
-    this.y = 395;
+  } else if(this.y + 15 > 400) { // hitting the bottom wall
+    this.y = 380;
     this.y_speed = -this.y_speed;
   }
 
