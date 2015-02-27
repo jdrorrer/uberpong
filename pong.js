@@ -25,6 +25,8 @@ var computer = new Computer();
 var ball = new Ball(300, 191);
 
 var winningScore = 21;
+var isPaused = false;
+var start = 0;
 
 // Keeps track of which key was pressed (left or right arrow)
 var keysDown = {};
@@ -67,12 +69,36 @@ var update = function() {
   player.update();
   computer.update(ball);
   ball.update(player.paddle, computer.paddle, player.score, computer.score);
+  if(!start) { // if game has not yet started
+    start += 1;
+  }
 };
 
 // udpate objects, render objects, and call step function recursively
-var step = function() {
-  update();
+var step = function(timestamp) {
+  // If isPaused is true, pause the game, otherwise continue with animation sequence
+  if(isPaused) { // pause at start of game
+    update();
+  } 
+  
   render();
+
+  if(!isPaused && start) { // if game is paused and has started
+    // Show user that game is paused
+    ctx.fillStyle = "#FFF";
+    ctx.font = "20px 'Press Start 2P'";
+    ctx.textAlign = "center";
+    ctx.fillText("Paused" , 300, 170);
+  } else if(!isPaused && !start) { // if game is paused but has not started yet
+    // Show welcome message
+    ctx.fillStyle = "#FFF";
+    ctx.font = "48px 'Press Start 2P'";
+    ctx.textAlign = "center";
+    ctx.fillText("PONG" , 300, 170);
+    ctx.font = "12px 'Press Start 2P'";
+    ctx.fillText("Press space bar to toggle play/pause" , 300, 230);
+  }
+
   requestId = animate(step);
 
   // Cancel animation once the winning score is reached
@@ -279,7 +305,12 @@ window.onload = function() {
 
 // Pushes key pressed event to the keysDown object on keydown and deletes it on keyup
 window.addEventListener("keydown", function(event) {
+  var value = Number(event.keyCode);
+
   keysDown[event.keyCode] = true;
+  if(value == 32) { // space bar
+    isPaused = !isPaused; // toggle play/pause state
+  }
 });
 
 window.addEventListener("keyup", function(event) {
