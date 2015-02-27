@@ -24,7 +24,7 @@ var player = new Player();
 var computer = new Computer();
 var ball = new Ball(300, 191);
 
-var winningScore = 30;
+var winningScore = 21;
 var isPaused = false; // toggled by keydown event listener
 var start = 0; // updated by update() function to signal game has started
 
@@ -141,7 +141,7 @@ Score.prototype.renderWinner = function(winMessage) {
 };
 
 Score.prototype.update = function() {
-    this.score += 10;
+    this.score += 1;
 };
 
 // Create Paddle prototype with render and move methods
