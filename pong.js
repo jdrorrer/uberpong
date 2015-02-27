@@ -24,12 +24,18 @@ var player = new Player();
 var computer = new Computer();
 var ball = new Ball(300, 191);
 
-var winningScore = 21;
-var isPaused = false;
-var start = 0;
+var winningScore = 30;
+var isPaused = false; // toggled by keydown event listener
+var start = 0; // updated by update() function to signal game has started
 
 // Keeps track of which key was pressed (left or right arrow)
 var keysDown = {};
+
+// Initialize game over menu elements
+var tweet = document.getElementById("tweet");
+var restart = document.getElementById("restart");
+tweet.href ='http://twitter.com/share?url=https://uberpong.herokuapp.com/&text=I just pwned ' 
+            + 'some robot n00bs in the funky fresh game Uber Pong! &count=horiztonal';
 
 // Using img onerror trick to load google font
 var loadCSS = function(url, callback){
@@ -58,9 +64,15 @@ var render = function() {
   player.render();
   computer.render();
 
-  // Once the game is over, remove ball from screen
+  // As long as the game is not over, render the ball
   if(player.score.score < winningScore && computer.score.score < winningScore) {
     ball.render();
+  }
+
+  // Display game over menu once game ends
+  if(player.score.score === winningScore || computer.score.score === winningScore) {
+    tweet.style.display = "inline-block";
+    restart.style.display = "inline-block";
   }
 };
 
@@ -80,7 +92,7 @@ var step = function(timestamp) {
   if(isPaused) { // pause at start of game
     update();
   } 
-  
+
   render();
 
   if(!isPaused && start) { // if game is paused and has started
@@ -94,7 +106,7 @@ var step = function(timestamp) {
     ctx.fillStyle = "#FFF";
     ctx.font = "48px 'Press Start 2P'";
     ctx.textAlign = "center";
-    ctx.fillText("PONG" , 300, 170);
+    ctx.fillText("UBER PONG" , 300, 170);
     ctx.font = "12px 'Press Start 2P'";
     ctx.fillText("Press space bar to toggle play/pause" , 300, 230);
   }
@@ -129,7 +141,7 @@ Score.prototype.renderWinner = function(winMessage) {
 };
 
 Score.prototype.update = function() {
-    this.score += 1;
+    this.score += 10;
 };
 
 // Create Paddle prototype with render and move methods

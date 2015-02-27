@@ -1,11 +1,18 @@
 <html>
   <head>
-    <script src="pong.js"></script>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
    <img alt="Computer" id="computer" style="display: none" src="images/computer.png" />
    <img alt="Player" id="player" style="display: none" src="images/player.png" />
    <img alt="Ball" id="ball" style="display: none" src="images/ball.png" />
    <img alt="Canvas" id="canvas" style="display: none" src="images/canvas.png" />
+
+   <div class="game-over-menu">
+     <a href="#" id="restart" onclick="window.location.reload()">Restart</a>  
+     <a href="#" id="tweet" target="_blank" rel="nofollow">Tweet About Uber Pong</a> 
+   </div>
+
+   <script src="pong.js"></script>
   </body>
 </html>

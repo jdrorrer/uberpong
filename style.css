@@ -1,0 +1,36 @@
+#game-over-menu {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  background: transparent;
+}
+
+a {
+  position: absolute;  
+  font: 72px "Press Start 2P", cursive;
+  color: white;
+  text-align: center;
+  margin: 0;
+  font-size : 16px; 
+  margin: 0;
+  left: 0;
+}
+
+#restart, #tweet {
+  font-size: 12px;
+  width: 120px;
+  top: 30%; 
+  left: 200px; 
+  display: none;
+  border-bottom: 2px solid white;
+  padding: 10px;
+  text-decoration: none;
+  margin: 0 auto; 
+}
+
+#restart {width: 90px; top: 37%; left: 260px;}
+
+#tweet {top: 45%; width: 262px; left: 170px;}
