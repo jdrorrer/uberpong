@@ -2,8 +2,7 @@
 var animate = window.requestAnimationFrame ||
   window.webkitrequestAnimationFrame ||
   window.mozrequestAnimationFrame ||
-  function(callback) {window.setTimeout(callback, 1000/60) 
-};
+  function(callback) {window.setTimeout(callback, 1000/60)};
 
 var cancelAnimate = window.cancelAnimationFrame || 
   window.mozCancelAnimationFrame || 
@@ -38,7 +37,7 @@ tweet.href ='http://twitter.com/share?url=https://uberpong.herokuapp.com/&text=I
             + 'some robot n00bs in the funky fresh game Uber Pong! &count=horiztonal';
 
 // Using img onerror trick to load google font
-var loadCSS = function(url, callback){
+var loadCSS = function(url, callback) {
     var link = document.createElement('link');
         link.type = 'text/css';
         link.rel = 'stylesheet';
@@ -47,11 +46,11 @@ var loadCSS = function(url, callback){
     document.getElementsByTagName('head')[0].appendChild(link);
 
     var img = document.createElement('img');
-        img.onerror = function(){
+        img.onerror = function() {
             if(callback) callback(link);
-        }
+        };
         img.src = url;
-}
+};
 
 // Render the game board and objects
 var render = function() {
@@ -124,7 +123,7 @@ function Score(score, x, y) {
   this.score = score;
   this.x = x;
   this.y = y;
-}
+};
 
 Score.prototype.render = function() {
   ctx.fillStyle = "#FFF";
@@ -152,7 +151,7 @@ function Paddle(x, y, width, height) {
   this.height = height;
   this.x_speed = 0;
   this.y_speed = 0;
-}
+};
 
 Paddle.prototype.render = function(type) {
   // ctx.fillStyle = "#FFF"; // #0000FF
@@ -186,7 +185,7 @@ Paddle.prototype.move = function(x, y) {
 function Computer() {
   this.paddle = new Paddle(10, 165, 30, 70);
   this.score = new Score(0, 200, 50);
-}
+};
 
 Computer.prototype.render = function() {
   this.paddle.render("computer");
@@ -216,7 +215,7 @@ Computer.prototype.update = function(ball) {
 function Player() {
   this.paddle = new Paddle(560, 165, 30, 70);
   this.score = new Score(0, 400, 50);
-}
+};
 
 Player.prototype.render = function() {
   this.paddle.render("player");
@@ -246,7 +245,7 @@ function Ball(x, y) {
   this.x_speed = 3;
   this.y_speed = 0;
   this.radius = 5;
-}
+};
 
 Ball.prototype.render = function() {
   // ctx.beginPath();
@@ -310,6 +309,7 @@ Ball.prototype.update = function(paddle1, paddle2, score1, score2) {
 
 // When page loads attach canvas to screen and start animate
 window.onload = function() {
+  console.log("Starting Pong!");
   loadCSS('https://fonts.googleapis.com/css?family=Press+Start+2P');
   document.body.appendChild(canvas);
   requestId = animate(step);
@@ -328,4 +328,3 @@ window.addEventListener("keydown", function(event) {
 window.addEventListener("keyup", function(event) {
   delete keysDown[event.keyCode];
 });
-
